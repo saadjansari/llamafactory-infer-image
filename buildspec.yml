@@ -23,10 +23,7 @@ phases:
   build:
     commands:
       - echo "Building and pushing ${REPO_URI}:${IMAGE_TAG}"
-      - docker buildx build --platform linux/amd64 \
-          -f ${DOCKERFILE_PATH} \
-          -t ${REPO_URI}:${IMAGE_TAG} \
-          --push .
+      - docker buildx build --platform linux/amd64 -f ${DOCKERFILE_PATH} -t ${REPO_URI}:${IMAGE_TAG} --push .
       - IMAGE_URI=${REPO_URI}:${IMAGE_TAG}
       - echo "IMAGE_URI=$IMAGE_URI"
 
