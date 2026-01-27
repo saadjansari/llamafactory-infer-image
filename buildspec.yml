@@ -1,0 +1,36 @@
+version: 0.2
+
+env:
+  variables:
+    IMAGE_REPO_NAME: "llamafactory-infer"
+    IMAGE_TAG: "0.9.4"
+    DOCKERFILE_PATH: "DOCKERFILE"
+  exported-variables:
+    - IMAGE_URI
+
+phases:
+  pre_build:
+    commands:
+      - set -euo pipefail
+      - echo "Logging in to Amazon ECR..."
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - REGION=${AWS_DEFAULT_REGION}
+      - REPO_URI=${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${IMAGE_REPO_NAME}
+      - aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com
+      - echo "Repo URI: $REPO_URI"
+      - docker buildx create --use || true
+
+  build:
+    commands:
+      - echo "Building and pushing ${REPO_URI}:${IMAGE_TAG}"
+      - docker buildx build --platform linux/amd64 \
+          -f ${DOCKERFILE_PATH} \
+          -t ${REPO_URI}:${IMAGE_TAG} \
+          --push .
+      - IMAGE_URI=${REPO_URI}:${IMAGE_TAG}
+      - echo "IMAGE_URI=$IMAGE_URI"
+
+  post_build:
+    commands:
+      - echo "Done."
+

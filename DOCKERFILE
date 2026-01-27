@@ -1,0 +1,27 @@
+# Inference-only image for LLaMA-Factory batch inference (vLLM/HF backend)
+FROM hiyouga/llamafactory:0.9.4
+
+USER root
+
+# Video tooling + basic utilities
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    ca-certificates \
+    curl \
+    jq \
+  && rm -rf /var/lib/apt/lists/*
+
+# S3 + scripting support
+RUN python -m pip install --no-cache-dir -U pip \
+ && python -m pip install --no-cache-dir boto3 awscli
+
+# Good defaults for HuggingFace caching in container
+ENV HF_HOME=/tmp/hf_cache \
+    TRANSFORMERS_CACHE=/tmp/hf_cache \
+    HF_HUB_DISABLE_TELEMETRY=1 \
+    TOKENIZERS_PARALLELISM=false
+
+WORKDIR /workspace
+
+CMD ["bash", "-lc", "llamafactory-cli --help"]
+
