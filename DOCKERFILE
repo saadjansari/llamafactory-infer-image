@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python -m pip install --no-cache-dir -U pip \
  && python -m pip install --no-cache-dir boto3 awscli
 
+RUN python -m pip install --no-cache-dir -U librosa audioread
+
 # Good defaults for HuggingFace caching in container
 ENV HF_HOME=/tmp/hf_cache \
     TRANSFORMERS_CACHE=/tmp/hf_cache \
