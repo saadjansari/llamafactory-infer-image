@@ -15,6 +15,12 @@ phases:
       - REPO_URI=${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${IMAGE_REPO_NAME}
       - echo "REPO_URI=$REPO_URI"
       - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com
+      - echo "Logging in to Docker Hub..."
+      - SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id dockerhub/creds --query SecretString --output text)
+      - DOCKERHUB_USERNAME=$(echo "$SECRET_JSON" | jq -r .username)
+      - DOCKERHUB_TOKEN=$(echo "$SECRET_JSON" | jq -r .password)
+      - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+      - echo "Docker Hub login OK"
 
   build:
     commands:
