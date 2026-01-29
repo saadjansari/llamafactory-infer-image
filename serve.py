@@ -78,19 +78,15 @@ def _local_cache_path_for(uri: str) -> Path:
 
 
 def _worker_main(gpu_id: str, model_dir: str, job_q, res_q):
-    # IMPORTANT: set CUDA_VISIBLE_DEVICES before importing torch/transformers
     os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
 
     import torch
-    from transformers import AutoProcessor, AutoModelForCausalLM
+    from transformers import Qwen2_5OmniProcessor, Qwen2_5OmniThinkerForConditionalGeneration
 
-    model_path = model_dir
-    processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True)
+    processor = Qwen2_5OmniProcessor.from_pretrained(model_dir, trust_remote_code=True)
 
-    # Load model fully on THIS worker's single visible GPU.
-    # With CUDA_VISIBLE_DEVICES set to one GPU, "cuda:0" maps to that GPU.
-    model = AutoModelForCausalLM.from_pretrained(
-        model_path,
+    model = Qwen2_5OmniThinkerForConditionalGeneration.from_pretrained(
+        model_dir,
         torch_dtype=torch.bfloat16 if torch.cuda.is_available() else "auto",
         device_map=None,
         trust_remote_code=True,
