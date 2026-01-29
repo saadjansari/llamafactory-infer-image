@@ -5,6 +5,11 @@ USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     libsndfile1 \
+    libavcodec-dev \
+    libavformat-dev \
+    libswscale-dev \
+    libavdevice-dev \
+    libavfilter-dev \
     ca-certificates \
     curl \
     jq \
@@ -14,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install runtime deps (avoid torch)
 RUN python -m pip install --no-cache-dir -U pip \
  && python -m pip install --no-cache-dir \
+    av \
     fastapi "uvicorn[standard]" \
     boto3 awscli \
     transformers accelerate safetensors einops \
